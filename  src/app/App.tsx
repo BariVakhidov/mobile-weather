@@ -1,31 +1,21 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
-import React from 'react';
+import React, {FC, memo, useEffect, useState} from 'react';
 import {
+  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
-  StyleSheet,
   Text,
+  TextInput,
   useColorScheme,
   View,
+  FlatList,
+  Image,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {styles} from './AppStyles';
+import {sketchfabClient} from '../client/SketchfabClient';
+import {SketchfabClientTypes} from '../client/SketchfabClient/sketchfabClient-types';
 
 const Section: React.FC<{
   title: string;
@@ -55,61 +45,87 @@ const Section: React.FC<{
   );
 };
 
-const App = () => {
+const App: FC = memo(() => {
+  const [count, setCount] = useState(0);
+  const [input, setInput] = useState('');
+  const [models, setModels] = useState<SketchfabClientTypes.Model[] | null>(
+    null,
+  );
   const isDarkMode = useColorScheme() === 'dark';
 
+  const getModels = async (
+    params: Partial<SketchfabClientTypes.SearchModelsParams>,
+  ) => {
+    const response: SketchfabClientTypes.SearchModelsResponse =
+      await sketchfabClient.getModels(params);
+    response.results.forEach(i =>
+      i.thumbnails.images.sort((a, b) => b.width - a.width),
+    );
+    setModels(response.results);
+  };
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
-
+  useEffect(() => {
+    if (input.length) {
+      getModels({q: input});
+    } else {
+      setModels(null);
+    }
+  }, [input]);
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+        <View>
+          <Text style={styles.bigTextStyle}>People, who like Romachka:</Text>
+          <Text style={styles.bigTextStyle}>{count}</Text>
+          <View style={styles.space}>
+            <Button
+              title={'increment'}
+              onPress={() => setCount(prevState => prevState + 1)}
+            />
+            <Button
+              title={'decrement'}
+              onPress={() => setCount(prevState => prevState - 1)}
+            />
+          </View>
+          <TextInput
+            style={styles.input}
+            value={input}
+            onChangeText={text => setInput(text)}
+          />
+          {models && (
+            <View style={styles.container}>
+              {models.map(model => (
+                <Model
+                  key={model.uid}
+                  imageUrl={model.thumbnails.images[0].url}
+                  name={model.name}
+                />
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
-};
+});
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
+interface ModelProps {
+  imageUrl: string;
+  name: string;
+}
+
+const Model: FC<ModelProps> = memo(({name, imageUrl}) => {
+  return (
+    <View style={styles.model}>
+      <Image style={styles.image} source={{uri: imageUrl}} />
+      <Text style={styles.item}>{name}</Text>
+    </View>
+  );
 });
 
 export default App;
