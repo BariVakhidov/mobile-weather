@@ -1,6 +1,7 @@
 import {axiosInstance} from '../index';
-import {SketchfabClientTypes} from './sketchfabClient-types';
-import {ClientURLs} from '../../constants/clientURLs'; //TODO: change src name
+import {ClientURLs} from "../../constants/clientURLs";
+import {SketchfabClientTypes} from "./sketchfabClient-types";
+
 
 export const sketchfabClient = {
   getModels(
