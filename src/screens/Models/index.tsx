@@ -1,52 +1,55 @@
 import React, {FC, memo, useEffect, useState} from "react";
-import {FlatList, TextInput, View} from "react-native";
+import {FlatList, TextInput, View, ActivityIndicator, KeyboardAvoidingView} from "react-native";
 import {Model} from "./Model";
-import {sketchfabClient} from "../../client/SketchfabClient";
 import {styles} from "../../app/AppStyles";
-import {SketchfabClientTypes} from "../../client/SketchfabClient/sketchfabClient-types";
+import {getModels} from "../../redux/models/thunk";
+import {useAppDispatch, useAppSelector} from "../../redux/store";
+import {modelsActionCreators} from "../../redux/models/action-creators";
 
 
 export const Models: FC = memo(() => {
-    const [input, setInput] = useState('');
-    const [models, setModels] = useState<SketchfabClientTypes.Model[] | null>(
-        null,
-    );
+    const [input, setInput] = useState("");
+    const {models, isFetching} = useAppSelector(state => state.models)
+    const dispatch = useAppDispatch();
 
-    const getModels = async (
-        params: Partial<SketchfabClientTypes.SearchModelsParams>,
-    ) => {
-        const response: SketchfabClientTypes.SearchModelsResponse =
-            await sketchfabClient.getModels(params);
-        response.results.forEach(i =>
-            i.thumbnails.images.sort((a, b) => b.width - a.width),
-        );
-        setModels(response.results);
-    };
     useEffect(() => {
         if (input.length) {
-            getModels({q: input});
+            const timeout = setTimeout(() => dispatch(getModels({q: input})), 500);
+            return () => {
+                clearTimeout(timeout);
+            }
         } else {
-            setModels(null);
+            dispatch(modelsActionCreators.setModels(null));
         }
     }, [input]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(modelsActionCreators.setModels(null));
+        }
+    }, [])
+
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}>
             <TextInput
                 style={styles.input}
                 value={input}
                 onChangeText={text => setInput(text)}
             />
-            <FlatList
-                style={styles.container}
-                data={models}
-                renderItem={({item}) => (
-                    <Model
-                        key={item.uid}
-                        imageUrl={item.thumbnails.images[0].url}
-                        name={item.name}
-                    />
-                )}
-            />
-        </View>
+           <View style={styles.container}>
+               {isFetching && <View style={styles.loader}><ActivityIndicator size="large" /></View>}
+               {models && <FlatList
+                   style={styles.models}
+                   data={models}
+                   renderItem={({item}) => (
+                       <Model
+                           key={item.uid}
+                           imageUrl={item.thumbnails.images[0].url}
+                           name={item.name}
+                       />
+                   )}
+               />}
+           </View>
+        </KeyboardAvoidingView>
     );
 });

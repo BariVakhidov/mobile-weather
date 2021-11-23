@@ -1,68 +1,31 @@
-import React, {FC, memo, useState} from "react";
-import {Button, SafeAreaView, StatusBar, Text, useColorScheme, View,} from "react-native";
-import {Colors} from "react-native/Libraries/NewAppScreen";
-import {styles} from "./AppStyles";
-import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {NavigationContainer} from "@react-navigation/native";
-import {Models} from "../screens/Models";
-import {Screens} from "../constants/screens";
-import {NativeStackScreenProps} from "react-native-screens/native-stack";
-import {Login} from "../screens/Login";
+import React, {FC, useEffect} from "react";
+import {SafeAreaView,} from "react-native";
+import {onAuthStateChanged} from "firebase/auth";
+import {appAuth} from "../firebase";
+import {AppTypes} from "../redux/app/types";
+import {useAppDispatch, useAppSelector} from "../redux/store";
+import {appActionCreators} from "../redux/app/action-creators";
+import {DrawerNavigator} from "./DrawerNavigator/DrawerNavigator";
 
-const Stack = createNativeStackNavigator();
+export const App: FC = (() => {
+    const {user} = useAppSelector(state => state.app)
+    const dispatch = useAppDispatch();
 
-type HomeProps = NativeStackScreenProps<{}>
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(appAuth, user => {
+            let userInfo: AppTypes.UserInfo | null = null;
+            if (user) {
+                const {email, phoneNumber, emailVerified, displayName, uid, photoURL} = user;
+                userInfo = {email, phoneNumber, emailVerified, displayName, uid, photoURL}
+            }
+            dispatch(appActionCreators.setUser(userInfo))
+        })
+        return unsubscribe;
+    }, [])
 
-const Home: FC<HomeProps> = ({navigation}) => {
-    const [count, setCount] = useState(0);
-    const isDarkMode = useColorScheme() === "dark";
-
-    return <View>
-        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"}/>
-        <View style={{height: "100%"}}>
-            <Text style={styles.bigTextStyle}>People, who like Romachka:</Text>
-            <Text style={styles.bigTextStyle}>{count}</Text>
-            <View style={styles.space}>
-                <Button
-                    title={"increment"}
-                    onPress={() => setCount(prevState => prevState + 1)}
-                />
-                <Button
-                    title={"decrement"}
-                    onPress={() => setCount(prevState => prevState - 1)}
-                />
-            </View>
-            <Button
-                title={"Models"}
-                onPress={() => navigation.navigate(Screens.MODELS)} //TODO ts shit
-            />
-            <Button
-                title={"Login"}
-                onPress={() => navigation.navigate(Screens.LOGIN)} //TODO ts shit
-            />
-        </View>
-    </View>
-
-}
-
-const App: FC = memo(() => {
-    const isDarkMode = useColorScheme() === "dark";
-
-
-    const backgroundStyle = {
-        backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-    };
     return (
         <SafeAreaView style={{height: "100%"}}>
-            <NavigationContainer>
-                <Stack.Navigator initialRouteName={Screens.HOME}>
-                    <Stack.Screen name={Screens.MODELS} component={Models}/>
-                    <Stack.Screen name={Screens.LOGIN} component={Login}/>
-                    <Stack.Screen options={{headerShown: false}} name={Screens.HOME} component={Home}/>
-                </Stack.Navigator>
-            </NavigationContainer>
+            <DrawerNavigator user={user}/>
         </SafeAreaView>
     );
 });
-
-export default App;

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "602532661995",
+    "project_id": "chat-54dcf",
+    "storage_bucket": "chat-54dcf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602532661995:android:82299d9ed1155776160cae",
+        "android_client_info": {
+          "package_name": "com.weather"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602532661995-86ol6gvoi9lopreo6v29bpg5vt78uc9o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBydHwrlkptvPRvOt5W5JHq5ftiKQgwDw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602532661995-86ol6gvoi9lopreo6v29bpg5vt78uc9o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -30,15 +30,17 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   container: {
+    position: 'relative',
     flex: 1,
+  },
+  models: {
     padding: 22,
   },
   input: {
-    height: 40,
-    borderStyle: 'solid',
-    borderColor: 'blue',
-    borderWidth: 1,
+    backgroundColor: "white",
     margin: 10,
+    padding: 10,
+    borderRadius: 10,
   },
   item: {
     padding: 10,
@@ -59,5 +61,16 @@ export const styles = StyleSheet.create({
   image: {
     width: 250,
     height: 200,
+  },
+  loader: {
+    zIndex: 2,
+    position: "absolute",
+    backgroundColor: 'rgba(241, 241, 241, 0.64)',
+    top: 0,
+    right: 0,
+    width: '100%',
+    height: '100%',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
