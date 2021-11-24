@@ -1,5 +1,5 @@
 import React, {FC, useEffect} from "react";
-import {SafeAreaView,} from "react-native";
+import {Alert, SafeAreaView,} from "react-native";
 import {onAuthStateChanged} from "firebase/auth";
 import {appAuth} from "../firebase";
 import {AppTypes} from "../redux/app/types";
@@ -8,7 +8,7 @@ import {appActionCreators} from "../redux/app/action-creators";
 import {DrawerNavigator} from "./DrawerNavigator/DrawerNavigator";
 
 export const App: FC = (() => {
-    const {user} = useAppSelector(state => state.app)
+    const {user, error} = useAppSelector(state => state.app)
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -22,6 +22,16 @@ export const App: FC = (() => {
         })
         return unsubscribe;
     }, [])
+
+    useEffect(() => {
+        if (error) {
+            Alert.alert(
+                "Alert!",
+                error,
+                [{text: "OK", onPress: () => dispatch(appActionCreators.setError(null))}]
+            )
+        }
+    }, [error])
 
     return (
         <SafeAreaView style={{height: "100%"}}>

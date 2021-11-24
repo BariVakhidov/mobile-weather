@@ -19,7 +19,7 @@ export const appActionCreators = {
         payload,
     } as const),
 
-    setError: (payload: unknown) => ({
+    setError: (payload: Nullable<string>) => ({
         type: AppActionTypes.SET_ERROR,
         payload,
     } as const),

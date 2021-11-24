@@ -18,7 +18,7 @@ export namespace AppTypes {
     export interface AppState {
         user: Nullable<UserInfo>;
         isFetching: boolean;
-        error: unknown;
+        error: Nullable<string>;
         initialized: boolean;
     }
 

@@ -41,6 +41,8 @@ export const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
     borderRadius: 10,
+    borderColor: "#87b4ff",
+    borderWidth: 1,
   },
   item: {
     padding: 10,
@@ -50,27 +52,23 @@ export const styles = StyleSheet.create({
   model: {
     margin: 10,
     padding: 30,
-    borderColor: 'black',
-    borderWidth: 1,
-    borderRadius: 10,
-    borderStyle: 'solid',
+
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    backgroundColor: "white",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.20,
+    shadowRadius: 1.41,
+
+    elevation: 2
   },
   image: {
     width: 250,
     height: 200,
-  },
-  loader: {
-    zIndex: 2,
-    position: "absolute",
-    backgroundColor: 'rgba(241, 241, 241, 0.64)',
-    top: 0,
-    right: 0,
-    width: '100%',
-    height: '100%',
-    alignItems: "center",
-    justifyContent: "center",
   },
 });

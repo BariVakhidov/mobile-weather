@@ -1,17 +1,33 @@
-import React, {FC, memo, useCallback, useState} from "react";
-import {ActivityIndicator, Button, Image, KeyboardAvoidingView, Text, View} from "react-native";
-import {useAppSelector} from "../../redux/store";
+import React, {FC, memo, useCallback, useEffect, useState} from "react";
+import {Image, KeyboardAvoidingView, ScrollView, Text, TouchableOpacity, View} from "react-native";
+import {useAppDispatch, useAppSelector} from "../../redux/store";
 import avatar from "../../assets/images/no-photo.png";
 import {profileStyles} from "./ProfileStyles";
 import {EditInfo} from "./EditInfo";
 import {capitalizeFirstLetter} from "../../utils/helpers/capitalizeFirstLetter";
-import {styles} from "../../app/AppStyles";
+import {loginStyles} from "../Login/LoginStyles";
+import {useIsFocused} from "@react-navigation/native";
+import {Preloader} from "../../components/preloader";
+import {DataItem} from "./DataItem";
+import {signOut} from "../../redux/app/thunk";
 
 export const Profile: FC = memo(() => {
-    const [isEditMode, setEditMode] = useState(false);
     const {user, isFetching} = useAppSelector(state => state.app)
+    const [isEditMode, setEditMode] = useState(false);
+    const dispatch = useAppDispatch();
+
+    const onLogoutClick = () => dispatch(signOut());
     const activateEditMode = useCallback(() => setEditMode(true), []);
     const deactivateEditMode = useCallback(() => setEditMode(false), []);
+    const isFocused = useIsFocused();
+
+    useEffect(() => {
+        if (isFocused) {
+            return () => {
+                deactivateEditMode()
+            }
+        }
+    }, [isFocused])
 
     if (!user) {
         return null;
@@ -19,31 +35,35 @@ export const Profile: FC = memo(() => {
 
     const {uid, emailVerified, ...displayedInfo} = user;
     const source = user.photoURL ? {uri: user.photoURL} : avatar
+
     return (
-        <KeyboardAvoidingView style={profileStyles.container}>
-            <Image source={source} style={profileStyles.photo}/>
-            {isEditMode
-                ? <EditInfo user={user} onExit={deactivateEditMode}/>
-                : <>
-                    <View style={profileStyles.userInfo}>
-                        {Object.entries(displayedInfo).map(i => i[1] &&
-                            <DataItem label={capitalizeFirstLetter(i[0])} key={i[0]} text={i[1]}/>)}
-                    </View>
-                    <Button onPress={activateEditMode} title={"Edit"}/>
-                </>}
-            {isFetching && <View style={styles.loader}><ActivityIndicator size="large"/></View>}
-        </KeyboardAvoidingView>
+        <ScrollView>
+            <KeyboardAvoidingView style={profileStyles.container}>
+                <Image source={source} style={profileStyles.photo}/>
+                {isEditMode
+                    ? <EditInfo user={user} onExit={deactivateEditMode}/>
+                    : <>
+                        <View style={profileStyles.userInfo}>
+                            <View>
+                                {Object.entries(displayedInfo).map(i => i[1] &&
+                                    <DataItem label={capitalizeFirstLetter(i[0])} key={i[0]} text={i[1]}/>)}
+                            </View>
+                            <View style={profileStyles.buttons}>
+                                <TouchableOpacity style={loginStyles.button} onPress={activateEditMode}>
+                                    <Text>
+                                        EDIT
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[loginStyles.button, loginStyles.buttonOutlined]} onPress={onLogoutClick}>
+                                    <Text>
+                                        LOGOUT
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </>}
+            </KeyboardAvoidingView>
+            {isFetching && <Preloader/>}
+        </ScrollView>
     );
 });
-
-interface DataItemProps {
-    text: string;
-    label: string;
-}
-
-const DataItem: FC<DataItemProps> = ({label, text}) => {
-    return <View style={profileStyles.dataItem}>
-        <Text style={[profileStyles.label, profileStyles.text]}>{label}:</Text>
-        <Text style={profileStyles.text}>{text}</Text>
-    </View>
-}

@@ -1,30 +1,31 @@
 import React, {FC, memo} from "react";
 import {KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {Formik} from "formik";
-import {loginValidator} from "../../utils/validators/login-validator";
 import {NativeStackScreenProps} from "react-native-screens/native-stack";
 import {Screens} from "../../constants/screens";
-import {firebaseAuth} from "../../firebase/firebaseAuth";
 import {registrationStyles} from "./RegistrationStyles";
 import {RootStackParamList} from "../../app/DrawerNavigator/DrawerNavigator";
+import {registrationValidator} from "../../utils/validators/registration-validator";
+import {useAppDispatch, useAppSelector} from "../../redux/store";
+import {signUp} from "../../redux/app/thunk";
+import {Preloader} from "../../components/preloader";
 
-interface Props extends NativeStackScreenProps<RootStackParamList, Screens.LOGIN> {
+interface Props extends NativeStackScreenProps<RootStackParamList, Screens.REGISTER> {
 
 }
 
-export const Registration: FC<Props> = memo(({navigation}) => {
-    const onRegisterCLick = () => navigation.navigate(Screens.REGISTER);
-
+export const Registration: FC<Props> = memo(() => {
+    const {isFetching} = useAppSelector(state => state.app)
+    const dispatch = useAppDispatch();
     return (
         <KeyboardAvoidingView style={registrationStyles.container}>
             <Formik
-                initialValues={{email: "", password: ""}}
+                initialValues={{email: "", password: "", repeatedPassword: ""}}
                 onSubmit={values => {
                     const {email, password} = values;
-                    console.log(values);
-                    firebaseAuth.createUser({email, password}).then(user => user && navigation.replace(Screens.MODELS))
+                    dispatch(signUp({email, password}))
                 }}
-                validate={loginValidator}
+                validate={registrationValidator}
             >
                 {({handleChange, handleBlur, handleSubmit, values, errors}) => (
                     <>
@@ -46,17 +47,19 @@ export const Registration: FC<Props> = memo(({navigation}) => {
                             />
                             <TextInput
                                 secureTextEntry
-                                onChangeText={handleChange("password")}
-                                onBlur={handleBlur("password")}
-                                value={values.password}
+                                onChangeText={handleChange("repeatedPassword")}
+                                onBlur={handleBlur("repeatedPassword")}
+                                value={values.repeatedPassword}
                                 style={registrationStyles.input}
-                                placeholder={"Password"}
+                                placeholder={"Repeat password"}
                             />
                             {errors.email && <Text style={registrationStyles.errorText}>{errors.email}</Text>}
+                            {errors.repeatedPassword &&
+                            <Text style={registrationStyles.errorText}>{errors.repeatedPassword}</Text>}
                         </View>
                         <View style={registrationStyles.buttonsContainer}>
                             <TouchableOpacity style={registrationStyles.button}>
-                                <Text style={registrationStyles.text} onPress={onRegisterCLick}>
+                                <Text style={registrationStyles.text} onPress={handleSubmit}>
                                     Register
                                 </Text>
                             </TouchableOpacity>
@@ -64,6 +67,7 @@ export const Registration: FC<Props> = memo(({navigation}) => {
                     </>
                 )}
             </Formik>
+            {isFetching && <Preloader/>}
         </KeyboardAvoidingView>
     );
 });

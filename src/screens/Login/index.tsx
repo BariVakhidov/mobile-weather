@@ -5,28 +5,30 @@ import {loginStyles} from "./LoginStyles";
 import {loginValidator} from "../../utils/validators/login-validator";
 import {NativeStackScreenProps} from "react-native-screens/native-stack";
 import {Screens} from "../../constants/screens";
-import {firebaseAuth} from "../../firebase/firebaseAuth";
 import {RootStackParamList} from "../../app/DrawerNavigator/DrawerNavigator";
+import {useAppDispatch, useAppSelector} from "../../redux/store";
+import {signIn} from "../../redux/app/thunk";
+import {Preloader} from "../../components/preloader";
 
 interface Props extends NativeStackScreenProps<RootStackParamList, Screens.LOGIN> {
 
 }
 
 export const Login: FC<Props> = memo(({navigation}) => {
+    const {isFetching} = useAppSelector(state => state.app);
     const onRegisterCLick = () => navigation.navigate(Screens.REGISTER);
-
+    const dispatch = useAppDispatch();
     return (
         <KeyboardAvoidingView style={loginStyles.container}>
             <Formik
                 initialValues={{email: "", password: ""}}
                 onSubmit={values => {
                     const {email, password} = values;
-                    console.log(values);
-                    firebaseAuth.signInWithCredentials({email, password}).then(user => user && navigation.replace(Screens.MODELS))
+                    dispatch(signIn({email, password}))
                 }}
                 validate={loginValidator}
             >
-                {({handleChange, handleBlur, handleSubmit, values, errors}) => (
+                {({handleChange, handleBlur, handleSubmit, values, errors, touched}) => (
                     <>
                         <View style={loginStyles.form}>
                             <TextInput
@@ -44,7 +46,7 @@ export const Login: FC<Props> = memo(({navigation}) => {
                                 style={loginStyles.input}
                                 placeholder={"Password"}
                             />
-                            {errors.email && <Text style={loginStyles.errorText}>{errors.email}</Text>}
+                            {touched.email && errors.email && <Text style={loginStyles.errorText}>{errors.email}</Text>}
                         </View>
                         <View style={loginStyles.buttonsContainer}>
                             <TouchableOpacity style={loginStyles.button} onPress={handleSubmit}>
@@ -61,6 +63,7 @@ export const Login: FC<Props> = memo(({navigation}) => {
                     </>
                 )}
             </Formik>
+            {isFetching && <Preloader/>}
         </KeyboardAvoidingView>
     );
 });

@@ -1,6 +1,6 @@
 import React, {FC, memo} from "react";
 import {AppTypes} from "../../redux/app/types";
-import {Button, KeyboardAvoidingView, Text, TextInput, View} from "react-native";
+import {Text, TextInput, TouchableOpacity, View} from "react-native";
 import {profileStyles} from "./ProfileStyles";
 import {loginStyles} from "../Login/LoginStyles";
 import {Formik} from "formik";
@@ -18,7 +18,7 @@ export const EditInfo: FC<Props> = memo(({user, onExit}) => {
     const editableInfo = {email, displayName, photoURL};
     const dispatch = useAppDispatch();
     return (
-        <KeyboardAvoidingView style={profileStyles.userInfo}>
+        <View style={profileStyles.userInfo}>
             <Formik
                 initialValues={{
                     email: email || "",
@@ -31,29 +31,38 @@ export const EditInfo: FC<Props> = memo(({user, onExit}) => {
                 }}
 
             >
-                {({handleChange, handleBlur, handleSubmit, values, errors}) => (
+                {({handleChange, handleBlur, handleSubmit, values}) => (
                     <>
                         <View>
-                            {Object.keys(editableInfo).map(key => <View key={key}>
+                            {Object.keys(editableInfo).map(key => <View style={profileStyles.formItem} key={key}>
                                 <Text>
                                     {capitalizeFirstLetter(key)}
                                 </Text>
                                 <TextInput
+                                    multiline={true}
                                     onChangeText={handleChange(key)}
                                     onBlur={handleBlur(key)}
                                     value={values[key as keyof typeof editableInfo]}
-                                    style={loginStyles.input}
+                                    style={profileStyles.input}
                                     placeholder={capitalizeFirstLetter(key)}
                                 />
                             </View>)}
                         </View>
                         <View style={profileStyles.buttons}>
-                            <Button title={"Save"} onPress={handleSubmit}/>
-                            <Button title={"Cancel"} onPress={onExit}/>
+                            <TouchableOpacity style={loginStyles.button} onPress={handleSubmit}>
+                                <Text>
+                                    SAVE
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[loginStyles.button, loginStyles.buttonOutlined]} onPress={onExit}>
+                                <Text>
+                                    CANCEL
+                                </Text>
+                            </TouchableOpacity>
                         </View>
                     </>
                 )}
             </Formik>
-        </KeyboardAvoidingView>
+        </View>
     );
 });

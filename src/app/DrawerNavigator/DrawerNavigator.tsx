@@ -2,7 +2,6 @@ import React, {FC, memo} from "react";
 import {createDrawerNavigator} from "@react-navigation/drawer";
 import {Screens} from "../../constants/screens";
 import {Models} from "../../screens/Models";
-import {Home} from "../Home";
 import {Login} from "../../screens/Login";
 import {Registration} from "../../screens/Registration";
 import {NavigationContainer} from "@react-navigation/native";
@@ -12,9 +11,7 @@ import {Profile} from "../../screens/Profile";
 import {CustomDrawerContent} from "./CustomDrawerContent";
 
 export type RootStackParamList = {
-    Home: undefined;
     Models: undefined;
-    Chat: undefined;
     Login: undefined;
     Register: undefined;
     Profile: undefined;
@@ -29,14 +26,13 @@ interface Props {
 export const DrawerNavigator: FC<Props> = memo(({user}) => {
     return (
         <NavigationContainer>
-            <Drawer.Navigator initialRouteName={Screens.HOME}
+            <Drawer.Navigator initialRouteName={Screens.MODELS}
                               drawerContent={(props) => <CustomDrawerContent {...props} user={user}/>}>
                 {user
                     ? (
                         <>
                             <Drawer.Screen name={Screens.PROFILE} component={Profile}/>
                             <Drawer.Screen name={Screens.MODELS} component={Models}/>
-                            <Drawer.Screen options={{headerShown: false}} name={Screens.HOME} component={Home}/>
                         </>
                     )
                     : (
@@ -50,4 +46,3 @@ export const DrawerNavigator: FC<Props> = memo(({user}) => {
         </NavigationContainer>
     );
 });
-

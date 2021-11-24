@@ -5,6 +5,7 @@ export const loginStyles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        position: "relative",
     },
     form: {
         justifyContent: "center",
@@ -45,7 +46,7 @@ export const loginStyles = StyleSheet.create({
     textOutlined: {
         color: "#87b4ff",
     },
-     errorText: {
-        color: 'red',
-     }
+    errorText: {
+        color: "red",
+    }
 })
